@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  db:
+    platform: linux/amd64
+    image: postgres:13
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    networks:
+      - odoo_net
+
+  odoo:
+    platform: linux/amd64
+    image: odoo:15
+    depends_on:
+      - db
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    command: odoo -i base --load=web --database odoo
+    ports:
+      - "8069:8069"
+    networks:
+      - odoo_net
+
+  attack:
+    platform: linux/amd64
+    image: python:3.8-slim
+    volumes:
+      - ./attack_scripts:/scripts
+    networks:
+      - odoo_net
+    entrypoint: ["tail", "-f", "/dev/null"]
+
+networks:
+  odoo_net:
+    driver: bridge
