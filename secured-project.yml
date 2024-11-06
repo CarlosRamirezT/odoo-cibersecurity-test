@@ -61,6 +61,8 @@ services:
       - ./attack_scripts:/scripts
     networks:
       - odoo_net
+    environment:
+      - SECURE_MODE=true
     entrypoint: ["/bin/sh", "-c", "pip install -r /scripts/requirements.txt && tail -f /dev/null"]
 
 networks:
