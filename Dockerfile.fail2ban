@@ -1,0 +1,13 @@
+FROM linuxserver/fail2ban
+
+# Create and copy filter files
+RUN mkdir -p /etc/fail2ban/filter.d
+
+# Add nginx-http-auth filter
+RUN echo -e "[Definition]\nfailregex = ^<HOST> -.* \"(GET|POST|HEAD).*HTTP/.*\" 401\nignoreregex =" > /etc/fail2ban/filter.d/nginx-http-auth.conf
+
+# Add nginx-botsearch filter
+RUN echo -e "[Definition]\nfailregex = ^<HOST> -.* \"(GET|POST|HEAD).* /botsearch.* HTTP/.*\"\nignoreregex =" > /etc/fail2ban/filter.d/nginx-botsearch.conf
+
+# Copy jail.local configuration
+COPY fail2ban/jail.local /etc/fail2ban/jail.local

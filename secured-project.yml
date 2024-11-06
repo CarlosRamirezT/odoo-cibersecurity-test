@@ -40,13 +40,14 @@ services:
       - ./modsecurity.conf:/etc/nginx/modsecurity.conf
 
   fail2ban:
-    image: linuxserver/fail2ban
+    build:
+      context: .
+      dockerfile: Dockerfile.fail2ban
     depends_on:
       - nginx
     networks:
       - odoo_net
     volumes:
-      - ./fail2ban/jail.local:/etc/fail2ban/jail.local
       - ./fail2ban:/var/log/nginx
       - ./fail2ban/data:/data
     environment:

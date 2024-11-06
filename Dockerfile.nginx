@@ -1,7 +1,7 @@
 # Dockerfile.nginx
-FROM nginx:latest
+FROM nginx:1.18.0
 
-# Instalar dependencias necesarias para compilar ModSecurity
+# Install necessary dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -15,7 +15,7 @@ RUN apt-get update && \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Descargar y compilar ModSecurity
+# Clone and build ModSecurity
 RUN git clone --depth 1 -b v3.0.4 https://github.com/SpiderLabs/ModSecurity \
     && cd ModSecurity \
     && git submodule init \
@@ -25,10 +25,10 @@ RUN git clone --depth 1 -b v3.0.4 https://github.com/SpiderLabs/ModSecurity \
     && make \
     && make install
 
-# Descargar y compilar ModSecurity para Nginx
+# Clone the ModSecurity-nginx connector
 RUN git clone --depth 1 https://github.com/SpiderLabs/ModSecurity-nginx.git
 
-# Compilar Nginx con el módulo ModSecurity
+# Download and compile Nginx with ModSecurity
 RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz \
     && tar zxvf nginx-1.18.0.tar.gz \
     && cd nginx-1.18.0 \
@@ -36,9 +36,8 @@ RUN wget http://nginx.org/download/nginx-1.18.0.tar.gz \
     && make modules \
     && cp objs/ngx_http_modsecurity_module.so /etc/nginx/modules
 
-# Configuración de Nginx para cargar el módulo ModSecurity
+# Load the ModSecurity module
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY modsecurity.conf /etc/nginx/modsecurity.conf
 
-# Habilitar el módulo ModSecurity en la configuración de Nginx
 RUN echo "load_module modules/ngx_http_modsecurity_module.so;" >> /etc/nginx/nginx.conf
