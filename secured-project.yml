@@ -53,6 +53,15 @@ services:
       - PUID=1000
       - PGID=1000
 
+  attack:
+    platform: linux/amd64
+    image: python:3.8-slim
+    volumes:
+      - ./attack_scripts:/scripts
+    networks:
+      - odoo_net
+    entrypoint: ["/bin/sh", "-c", "pip install -r /scripts/requirements.txt && tail -f /dev/null"]
+
 networks:
   odoo_net:
     driver: bridge
