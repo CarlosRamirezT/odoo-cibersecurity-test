@@ -1,0 +1,58 @@
+version: '3.7'
+services:
+  db:
+    platform: linux/amd64
+    image: postgres:13
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    networks:
+      - odoo_net
+    expose:
+      - "5432"
+
+  odoo:
+    platform: linux/amd64
+    image: odoo:15
+    depends_on:
+      - db
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    command: odoo -i base --load=web --database odoo
+    networks:
+      - odoo_net
+    expose:
+      - "8069"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx  # Usar el Dockerfile personalizado
+    ports:
+      - "80:80"
+    networks:
+      - odoo_net
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./modsecurity.conf:/etc/nginx/modsecurity.conf
+
+  fail2ban:
+    image: linuxserver/fail2ban
+    depends_on:
+      - nginx
+    networks:
+      - odoo_net
+    volumes:
+      - ./fail2ban/jail.local:/etc/fail2ban/jail.local
+      - ./fail2ban:/var/log/nginx
+      - ./fail2ban/data:/data
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+networks:
+  odoo_net:
+    driver: bridge

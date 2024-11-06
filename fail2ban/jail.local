@@ -1,0 +1,18 @@
+[DEFAULT]
+bantime = 3600
+findtime = 600
+maxretry = 5
+
+[nginx-http-auth]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/access.log
+filter = nginx-http-auth
+maxretry = 3
+
+[nginx-botsearch]
+enabled = true
+port = http,https
+logpath = /var/log/nginx/access.log
+filter = nginx-botsearch
+maxretry = 2
